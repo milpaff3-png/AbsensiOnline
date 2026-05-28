@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Aplikasi Absensi Online</title>
+
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body{
+      background: linear-gradient(135deg,#4f46e5,#7c3aed);
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding:20px;
+    }
+
+    .container{
+      width:100%;
+      max-width:950px;
+      background:white;
+      border-radius:20px;
+      padding:25px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .title{
+      text-align:center;
+      margin-bottom:25px;
+    }
+
+    .title h1{
+      color:#4f46e5;
+      margin-bottom:8px;
+    }
+
+    .card{
+      background:#f5f7ff;
+      padding:20px;
+      border-radius:15px;
+      margin-bottom:20px;
+    }
+
+    .form-group{
+      margin-bottom:15px;
+    }
+
+    label{
+      display:block;
+      margin-bottom:6px;
+      font-weight:bold;
+      color:#333;
+    }
+
+    input, select{
+      width:100%;
+      padding:12px;
+      border-radius:10px;
+      border:1px solid #ccc;
+      outline:none;
+      transition:0.3s;
+    }
+
+    input:focus, select:focus{
+      border-color:#4f46e5;
+      box-shadow:0 0 5px rgba(79,70,229,0.4);
+    }
+
+    .btn{
+      width:100%;
+      padding:13px;
+      border:none;
+      border-radius:12px;
+      background:#4f46e5;
+      color:white;
+      font-size:16px;
+      cursor:pointer;
+      transition:0.3s;
+      font-weight:bold;
+    }
+
+    .btn:hover{
+      background:#4338ca;
+      transform:scale(1.02);
+    }
+
+    .table-container{
+      overflow-x:auto;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:15px;
+    }
+
+    table th{
+      background:#4f46e5;
+      color:white;
+      padding:12px;
+    }
+
+    table td{
+      padding:12px;
+      border-bottom:1px solid #ddd;
+      text-align:center;
+    }
+
+    .hadir{
+      color:green;
+      font-weight:bold;
+    }
+
+    .izin{
+      color:orange;
+      font-weight:bold;
+    }
+
+    .sakit{
+      color:#e11d48;
+      font-weight:bold;
+    }
+
+    .hapus{
+      background:#ef4444;
+      border:none;
+      color:white;
+      padding:7px 12px;
+      border-radius:8px;
+      cursor:pointer;
+    }
+
+    .hapus:hover{
+      background:#dc2626;
+    }
+
+    .info{
+      margin-top:10px;
+      color:#555;
+      text-align:center;
+    }
+
+    @media(max-width:600px){
+      .container{
+        padding:15px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+
+    <div class="title">
+      <h1>📋 Absensi Online</h1>
+      <p>Sistem Absensi Siswa / Karyawan</p>
+    </div>
+
+    <div class="card">
+      <div class="form-group">
+        <label>Nama</label>
+        <input type="text" id="nama" placeholder="Masukkan nama">
+      </div>
+
+      <div class="form-group">
+        <label>Kelas / Divisi</label>
+        <input type="text" id="kelas" placeholder="Masukkan kelas/divisi">
+      </div>
+
+      <div class="form-group">
+        <label>Status Kehadiran</label>
+        <select id="status">
+          <option value="Hadir">Hadir</option>
+          <option value="Izin">Izin</option>
+          <option value="Sakit">Sakit</option>
+        </select>
+      </div>
+
+      <button class="btn" onclick="tambahAbsensi()">
+        Tambah Absensi
+      </button>
+
+      <div class="info">
+        Data tersimpan otomatis di browser
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📑 Data Absensi</h2>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Nama</th>
+              <th>Kelas/Divisi</th>
+              <th>Status</th>
+              <th>Waktu</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+
+          <tbody id="dataAbsensi">
+          </tbody>
+
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    let data = JSON.parse(localStorage.getItem("absensi")) || [];
+
+    function tampilkanData() {
+      const tabel = document.getElementById("dataAbsensi");
+      tabel.innerHTML = "";
+
+      data.forEach((item, index) => {
+
+        let warnaStatus = "";
+
+        if(item.status === "Hadir"){
+          warnaStatus = "hadir";
+        } else if(item.status === "Izin"){
+          warnaStatus = "izin";
+        } else {
+          warnaStatus = "sakit";
+        }
+
+        tabel.innerHTML += `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${item.nama}</td>
+            <td>${item.kelas}</td>
+            <td class="${warnaStatus}">
+              ${item.status}
+            </td>
+            <td>${item.waktu}</td>
+            <td>
+              <button class="hapus" onclick="hapusData(${index})">
+                Hapus
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+
+      localStorage.setItem("absensi", JSON.stringify(data));
+    }
+
+    function tambahAbsensi() {
+      const nama = document.getElementById("nama").value;
+      const kelas = document.getElementById("kelas").value;
+      const status = document.getElementById("status").value;
+
+      if(nama === "" || kelas === ""){
+        alert("Isi semua data terlebih dahulu!");
+        return;
+      }
+
+      const waktu = new Date().toLocaleString("id-ID");
+
+      data.push({
+        nama,
+        kelas,
+        status,
+        waktu
+      });
+
+      tampilkanData();
+
+      document.getElementById("nama").value = "";
+      document.getElementById("kelas").value = "";
+      document.getElementById("status").value = "Hadir";
+    }
+
+    function hapusData(index){
+      if(confirm("Yakin ingin menghapus data ini?")){
+        data.splice(index,1);
+        tampilkanData();
+      }
+    }
+
+    tampilkanData();
+  </script>
+
+</body>
+</html>
